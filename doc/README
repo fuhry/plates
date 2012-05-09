@@ -1,0 +1,12 @@
+Installing:
+	create database
+	mysql dbname < inc/schema.sql
+	cp inc/db-config.php{.example,}
+	vim inc/db-config.php
+		(edit to supply correct database details)
+
+License: GPL 2.0 or later at your option - see file COPYING
+Uses Bootstrap - Apache license. See file COPYING-APACHE
+Uses jQuery - GPL or MIT license. See files COPYING and COPYING-MIT
+
+
