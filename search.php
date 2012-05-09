@@ -10,15 +10,15 @@
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<a class="brand" href="#">Plates of Rochester</a>
+					<a class="brand" href="index.php">Plates of Rochester</a>
 					<ul class="nav">
 						<li><a href="index.php">Home</a></li>
 						<li class="active"><a href="reviews.php">Reviews</a></li>
 						<li><a href="submit.php">Submit</a></li>
 					</ul>
-					<form class="navbar-search pull-right" action="search.php">
+					<!-- form class="navbar-search pull-right" action="search.php">
 						<input name="q" type="text" class="search-query" placeholder="Search reviews..." />
-					</form>
+					</form -->
 				</div>
 			</div>
 		</div>

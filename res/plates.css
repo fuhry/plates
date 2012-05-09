@@ -86,7 +86,14 @@ span.stars, span.stars-inner {
 	display: inline-block;
 	height: 16px;
 	background-image: url(star.png);
+	margin: 0;
+	padding: 0;
+	line-height: 0;
 }
 span.stars-inner {
 	background-position: 0 -16px;
+}
+
+h3.thin {
+	font-weight: normal;
 }
