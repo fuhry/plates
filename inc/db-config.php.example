@@ -1,0 +1,9 @@
+<?php
+
+$db_config = array(
+	'host' => 'localhost',
+	'user' => 'plates',
+	'pass' => 'secret123',
+	'db' => 'plates'
+	);
+
