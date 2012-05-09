@@ -97,3 +97,10 @@ span.stars-inner {
 h3.thin {
 	font-weight: normal;
 }
+
+div.footer {
+	padding-top: 60px;
+	font-size: smaller;
+	color: #999999;
+	text-align: center;
+}

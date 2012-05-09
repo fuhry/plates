@@ -188,5 +188,9 @@ if ( isset($_GET['act']) && !empty($_POST) )
 			</div>
 			
 		</div>
+		<div class="footer container">
+			Plates of Rochester &copy; 2012 <a href="http://fuhry.us/">Dan Fuhry</a> &mdash; <a href="https://github.com/fuhry/plates">GitHub</a>
+		</div>
+		
 	</body>
 </html>
