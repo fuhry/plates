@@ -33,7 +33,7 @@ CREATE TABLE reviews (
 CREATE TABLE review_data (
 	id int(12) unsigned NOT NULL auto_increment,
 	review_id int(12) unsigned NOT NULL,
-	attr_id int(12) unsigned NOT NULL,
+	schema_id int(12) unsigned NOT NULL,
 	d_value longtext,
 	PRIMARY KEY ( id )
 );
