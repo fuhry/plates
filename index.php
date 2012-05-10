@@ -58,7 +58,7 @@
 			$q = db_query("SELECT v.id, v.v_name, AVG(r.overall_rating) AS rating, COUNT(r.id) AS num_reviews FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) GROUP BY v.id ORDER BY rating DESC LIMIT 3;");
 			while ( $row = db_fetch($q) )
 			{
-				echo '<div class="span4">';
+				echo '<div class="span4" style="margin-left: 0; padding-right: 10px; width: 290px;">';
 				printf("<h3>%s</h3>
 						%s<br />
 						Reviewed by <strong>%d</strong> %s<br /><a href=\"reviews.php?by_venue=%d\">See all reviews &raquo;</a>",
