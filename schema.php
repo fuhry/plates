@@ -97,6 +97,7 @@ if ( isset($_GET['act']) && !empty($_POST) )
 			}
 			if ( isset($_POST['delete_attr']) )
 			{
+				db_query(sprintf("DELETE FROM review_data WHERE schema_id = %d;", intval($_POST['delete_attr'])));
 				db_query(sprintf("DELETE FROM attrs WHERE id = %d;", intval($_POST['delete_attr'])));
 				echo '<div class="alert alert-success">Attribute deleted.</div>';
 			}
@@ -118,7 +119,7 @@ if ( isset($_GET['act']) && !empty($_POST) )
 					echo '<tr data-attrid="' . $row['id'] . '">';
 					printf("<td><strong>%s</strong>%s</td>", htmlspecialchars($row['a_name']), !empty($row['a_hint']) ? '<br /><small>' . htmlspecialchars($row['a_hint']) . '</small>' : '');
 					printf("<td>%s</td>", htmlspecialchars($row['a_type']));
-					printf("<td><button class=\"btn btn-danger\" name=\"delete_attr\" value=\"%d\">Delete</button> <i class=\"icon-resize-vertical\"></i></td>", $row['id']);
+					printf("<td><button class=\"btn btn-danger\" name=\"delete_attr\" value=\"%d\" onclick=\"return confirm('This will remove the attribute from the submit form and from ALL EXISTING REVIEWS. Are you sure you want to do this?');\">Delete</button> <i class=\"icon-resize-vertical\"></i></td>", $row['id']);
 					echo '</tr>';
 				}
 				?>
