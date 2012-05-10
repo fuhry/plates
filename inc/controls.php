@@ -5,6 +5,8 @@ define('CONTROL_REQUIRED', 1 << 0);
 define('CONTROL_RATING', 1 << 1);
 define('CONTROL_STRING_MULTILINE', 1 << 2);
 
+define('INDEX_SUMMARY_MAXLEN', 200);
+
 function stars($rating, $count = 5)
 {
 	return '<span class="stars" style="width: ' . ($count * 16) . 'px" title="' . sprintf("%.1f/%d", $rating, $count) . '">' .

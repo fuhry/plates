@@ -45,7 +45,7 @@
 						<em>%s</em> %s | <a href=\"detail.php?show_review=%d\">Read full review &raquo;</a>",
 							htmlspecialchars($row['v_name']),
 							htmlspecialchars($row['username']),
-							htmlspecialchars($row['freetext']),
+							strlen($row['freetext']) > INDEX_SUMMARY_MAXLEN ? htmlspecialchars(substr($row['freetext'], 0, INDEX_SUMMARY_MAXLEN - 3) . '...') : htmlspecialchars($row['freetext']),
 							date('F j, Y', $row['submit_time']),
 							stars($row['overall_rating']),
 							$row['id']);
