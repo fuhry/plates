@@ -80,7 +80,7 @@
 					printf("<td><a href=\"http://maps.google.com/maps?q=%s\" onclick=\"window.open(this.href); return false;\">%s</a></td>", htmlspecialchars(urlencode($addr)), htmlspecialchars($row['v_addr']));
 					printf("<td>%s</td>", htmlspecialchars($row['v_phone']));
 					printf("<td>%s</td>", stars($row['avg_rating']));
-					printf("<td>%d</td>", stars($row['review_count']));
+					printf("<td>%d</td>", $row['review_count']);
 					echo '</tr>';
 				}
 				?>
