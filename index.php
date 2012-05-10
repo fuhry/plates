@@ -53,7 +53,7 @@
 			}
 			?>
 			
-			<h2 style="clear: both;">Top rated restaurants</h2>
+			<h2 style="clear: both;">Top rated venues</h2>
 			
 			<?php
 			$q = db_query("SELECT v.id, v.v_name, AVG(r.overall_rating) AS rating, COUNT(r.id) AS num_reviews FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) GROUP BY v.id ORDER BY rating DESC LIMIT 3;");
