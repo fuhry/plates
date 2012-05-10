@@ -6,7 +6,7 @@ Installing:
 		(edit to supply correct database details)
 
 Edit, delete and sort attributes using schema.php.
-You probably want schema.php behind auth of some sort!
+You probably want schema.php and admin.php behind auth of some sort!
 
 License: GPL 2.0 or later at your option - see file COPYING
 Uses Bootstrap - Apache license. See file COPYING-APACHE
