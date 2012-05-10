@@ -27,7 +27,7 @@
 		<div class="container">
 			<ul class="breadcrumb">
 				<li><a href="index.php">Home</a> <span class="divider">/</span></li>
-				<li>Reviews</li>
+				<li>Venues</li>
 			</ul>
 			<?php
 			require_once('inc/loader.php');

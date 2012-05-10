@@ -25,10 +25,6 @@
 		</div>
 		
 		<div class="container">
-			<ul class="breadcrumb">
-				<li><a href="index.php">Home</a> <span class="divider">/</span></li>
-				<li>Reviews</li>
-			</ul>
 			<?php
 			require_once('inc/loader.php');
 			
@@ -49,7 +45,28 @@
 					break;
 			}
 			
+			$by_venue = isset($_GET['by_venue']) ? sprintf(" WHERE r.venue_id = %d ", intval($_GET['by_venue'])) : '';
+			
+			if ( !empty($by_venue) )
+			{
+				$q = db_query(sprintf("SELECT v_name FROM venues WHERE id = %d;", intval($_GET['by_venue'])));
+				list($v_name) = array_values(db_fetch($q));
+			}
+			
 			?>
+			
+			<?php if ( !empty($v_name) ): ?>
+			<ul class="breadcrumb">
+				<li><a href="index.php">Home</a> <span class="divider">/</span></li>
+				<li><a href="venues.php">Venues</a> <span class="divider">/</span></li>
+				<li><?php echo htmlspecialchars($v_name); ?></li>
+			</ul>
+			<?php else: ?>
+			<ul class="breadcrumb">
+				<li><a href="index.php">Home</a> <span class="divider">/</span></li>
+				<li>Reviews</li>
+			</ul>
+			<?php endif; ?>
 			
 			<div class="btn-group" style="float: right;">
 				<a class="btn<?php if ( $sort_by == 'rating') echo ' active'; ?>" href="reviews.php?sort=rating">Rating</a>
@@ -61,7 +78,6 @@
 			</div>
 			
 			<?php
-			$by_venue = isset($_GET['by_venue']) ? sprintf(" WHERE r.venue_id = %d ", intval($_GET['by_venue'])) : '';
 			$q = db_query($sql = "SELECT v.v_name, r.id, r.username, r.overall_rating, r.freetext, r.submit_time FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) $by_venue ORDER BY $sort_clause;");
 			$i = 0;
 			while ( $row = db_fetch($q) )
