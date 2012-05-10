@@ -41,6 +41,7 @@ if ( isset($_GET['act']) && !empty($_POST) )
 						<li><a href="reviews.php">Reviews</a></li>
 						<li><a href="submit.php">Submit</a></li>
 						<li class="active"><a href="schema.php">Schema management</a></li>
+						<li><a href="admin.php">Admin</a></li>
 					</ul>
 					<!-- form class="navbar-search pull-right" action="search.php">
 						<input name="q" type="text" class="search-query" placeholder="Search reviews..." />

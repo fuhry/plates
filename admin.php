@@ -40,6 +40,7 @@ if ( isset($_GET['act']) && !empty($_POST) )
 						<li><a href="index.php">Home</a></li>
 						<li><a href="reviews.php">Reviews</a></li>
 						<li><a href="submit.php">Submit</a></li>
+						<li><a href="schema.php">Schema management</a></li>
 						<li class="active"><a href="admin.php">Admin</a></li>
 					</ul>
 					<!-- form class="navbar-search pull-right" action="search.php">
