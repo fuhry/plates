@@ -38,6 +38,7 @@ if ( isset($_GET['act']) && !empty($_POST) )
 					<a class="brand" href="index.php">Plates of Rochester</a>
 					<ul class="nav">
 						<li><a href="index.php">Home</a></li>
+						<li><a href="venues.php">Venues</a></li>
 						<li><a href="reviews.php">Reviews</a></li>
 						<li><a href="submit.php">Submit</a></li>
 						<li class="active"><a href="schema.php">Schema management</a></li>

@@ -16,6 +16,7 @@
 					<a class="brand" href="index.php">Plates of Rochester</a>
 					<ul class="nav">
 						<li><a href="index.php">Home</a></li>
+						<li><a href="venues.php">Venues</a></li>
 						<li><a href="reviews.php">Reviews</a></li>
 						<li class="active"><a href="submit.php">Submit</a></li>
 					</ul>
