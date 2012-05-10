@@ -3,6 +3,7 @@
 	<head>
 		<title>Plates of Rochester</title>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="Your #1 source for Rochester Garbage Plate Reviews!" />
 		<link rel="stylesheet" type="text/css" href="res/bootstrap.css" />
 		<link rel="stylesheet" type="text/css" href="res/plates.css" />
 	</head>
