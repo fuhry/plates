@@ -41,6 +41,10 @@ function db_numrows($result)
 
 function db_escape($str)
 {
+	global $_dbconn;
+	if ( empty($_dbconn) )
+		db_connect();
+	
 	return mysql_real_escape_string($str);
 }
 
