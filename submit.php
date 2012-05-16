@@ -193,7 +193,7 @@
 			</form>
 		</div>
 		<div class="footer container">
-			Plates of Rochester &copy; 2012 <a href="http://fuhry.us/">Dan Fuhry</a> &mdash; <a href="https://github.com/fuhry/plates">GitHub</a>
+			Plates of Rochester &copy; 2012 <a href="http://www.grantcohoe.com/">Grant Cohoe</a> &amp; <a href="http://fuhry.us/">Dan Fuhry</a> &mdash; <a href="https://github.com/fuhry/plates">GitHub</a>
 		</div>
 		
 	</body>
