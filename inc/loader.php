@@ -4,6 +4,10 @@ define('INC', dirname(__FILE__) . '/');
 
 require(INC . 'db-class.php');
 require(INC . 'controls.php');
+require(INC . 'recaptchalib.php');
+
+require(INC . 'db-config.php');
+unset($db_config); // don't need this out in the open
 
 /**
  * Failsafe implementation of get_magic_quotes_gpc()

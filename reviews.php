@@ -68,6 +68,13 @@
 			</ul>
 			<?php endif; ?>
 			
+			<?php
+			if ( !empty($_GET['submitted']) )
+			{
+				echo '<div class="alert alert-success">Review submitted. Thanks!</div>';
+			}
+			?>
+			
 			<div class="btn-group" style="float: right;">
 				<a class="btn<?php if ( $sort_by == 'rating') echo ' active'; ?>" href="reviews.php?sort=rating">Rating</a>
 				<a class="btn<?php if ( $sort_by == 'date') echo ' active'; ?>" href="reviews.php?sort=date">Date</a>

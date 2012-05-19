@@ -1,4 +1,88 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<?php
+require('inc/loader.php');
+
+$recaptcha_error = null;
+$submit_error = null;
+if ( !empty($_POST) )
+{
+	call_user_func(function() {
+		global $submit_error, $recaptcha_error;
+		
+		if ( empty($_POST["recaptcha_response_field"]) )
+			return $submit_error = "No response provided for the CAPTCHA.";
+		
+		global $recaptcha_config;
+		$resp = recaptcha_check_answer($recaptcha_config['private'],
+                                        $_SERVER["REMOTE_ADDR"],
+                                        $_POST["recaptcha_challenge_field"],
+                                        $_POST["recaptcha_response_field"]);
+        if ( !$resp->is_valid )
+        {
+        	$recaptcha_error = $resp->error;
+        	return $submit_error = "Check the CAPTCHA.";
+        }
+		
+		// echo '<pre>' . htmlspecialchars(print_r($_POST, true)) . '</pre>';
+		
+		$review = $_POST['review'];
+		$review['submit_time'] = time();
+		$overall_count = 0;
+		$overall_n = 0;
+		
+		// fetch all attributes
+		$attrs = array();
+		$q = db_query("SELECT * FROM attrs ORDER BY a_sort_order ASC;");
+		while ( $row = db_fetch($q) )
+		{
+			$attrs[ intval($row['id']) ] = $row;
+		}
+		
+		foreach ( $_POST['attrs'] as $id => $attr )
+		{
+			$id = intval($id);
+			if ( !isset($attrs[$id]) )
+			{
+				unset($_POST['attrs'][$id]);
+				continue;
+			}
+			if ( $attrs[$id]['a_flags'] & CONTROL_RATING )
+			{
+				$overall_count++;
+				$overall_n += intval($attr);
+			}
+		}
+		
+		// first, do we need to try and create the venue?
+		if ( empty($review['venue_id']) )
+		{
+			$review['venue_id'] = db_insert('venues', array('v_name', 'v_addr', 'v_phone'), $_POST['venue']);
+		}
+		
+		// Now create the review
+		$review['overall_rating'] = round($overall_n / $overall_count, 1);
+		
+		$rid = db_insert('reviews', array('username', 'freetext', 'overall_rating', 'submit_time', 'venue_id'), $review);
+		
+		// ...and insert user-defined attributes
+		$attr_rows = array();
+		foreach ( $_POST['attrs'] as $id => $attr )
+		{
+			$ccls = "Control_{$attrs[$id]['a_type']}";
+			$cobj = new $ccls;
+			$attr_rows[] = array(
+				'review_id' => $rid,
+				'schema_id' => intval($id),
+				'd_value' => $cobj->serialize($attr)
+				);
+		}
+		db_insert('review_data', array('review_id', 'schema_id', 'd_value'), $attr_rows);
+		
+		header('HTTP/1.1 302 Found');
+		header('Location: reviews.php?sort=date&submitted=true');
+		exit;
+	});
+}
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 	<head>
 		<title>Plates of Rochester</title>
@@ -28,66 +112,10 @@
 		</div>
 		<div class="container">
 			<h1>Submit a review</h1>
-			<?php require('inc/loader.php'); ?>
 			<?php
-			if ( !empty($_POST) )
+			if ( !empty($submit_error) )
 			{
-				// echo '<pre>' . htmlspecialchars(print_r($_POST, true)) . '</pre>';
-				
-				$review = $_POST['review'];
-				$review['submit_time'] = time();
-				$overall_count = 0;
-				$overall_n = 0;
-				
-				// fetch all attributes
-				$attrs = array();
-				$q = db_query("SELECT * FROM attrs ORDER BY a_sort_order ASC;");
-				while ( $row = db_fetch($q) )
-				{
-					$attrs[ intval($row['id']) ] = $row;
-				}
-				
-				foreach ( $_POST['attrs'] as $id => $attr )
-				{
-					$id = intval($id);
-					if ( !isset($attrs[$id]) )
-					{
-						unset($_POST['attrs'][$id]);
-						continue;
-					}
-					if ( $attrs[$id]['a_flags'] & CONTROL_RATING )
-					{
-						$overall_count++;
-						$overall_n += intval($attr);
-					}
-				}
-				
-				// first, do we need to try and create the venue?
-				if ( empty($review['venue_id']) )
-				{
-					$review['venue_id'] = db_insert('venues', array('v_name', 'v_addr', 'v_phone'), $_POST['venue']);
-				}
-				
-				// Now create the review
-				$review['overall_rating'] = round($overall_n / $overall_count, 1);
-				
-				$rid = db_insert('reviews', array('username', 'freetext', 'overall_rating', 'submit_time', 'venue_id'), $review);
-				
-				// ...and insert user-defined attributes
-				$attr_rows = array();
-				foreach ( $_POST['attrs'] as $id => $attr )
-				{
-					$ccls = "Control_{$attrs[$id]['a_type']}";
-					$cobj = new $ccls;
-					$attr_rows[] = array(
-						'review_id' => $rid,
-						'schema_id' => intval($id),
-						'd_value' => $cobj->serialize($attr)
-						);
-				}
-				db_insert('review_data', array('review_id', 'schema_id', 'd_value'), $attr_rows);
-				
-				echo '<div class="alert alert-success">Review submitted. Thanks!</div>';
+				echo "<div class=\"alert alert-error\">$submit_error</div>";
 			}
 			?>
 			<form method="post" class="form form-horizontal" enctype="multipart/form-data">
@@ -185,6 +213,15 @@
 						$cobj->edit('attrs[' . $row['id'] . ']');
 					}
 					?>
+					
+					<div class="control-group">
+						<label class="control-label">Prove your humanity:</label>
+						<div class="controls">
+							<?php
+							echo recaptcha_get_html($recaptcha_config['public'], $recaptcha_error);
+							?>
+						</div>
+					</div>
 					
 					<div class="form-actions">
 						<input type="submit" class="btn btn-primary" value="Submit review" />
