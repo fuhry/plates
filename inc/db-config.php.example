@@ -11,3 +11,7 @@ $recaptcha_config = array(
 	'public' => 'xxxxxxx',
 	'private' => 'xxxxxxx'
 	);
+
+// E-mail address for alerts like "new review submitted"
+$alerts_email = 'plates@csh.rit.edu';
+

@@ -77,6 +77,32 @@ if ( !empty($_POST) )
 		}
 		db_insert('review_data', array('review_id', 'schema_id', 'd_value'), $attr_rows);
 		
+		// send the e-mail
+		// FIXME: move this to an external template or something
+		$now = date('r');
+		$email_body = <<<EOF
+Hey there, Plates admins!
+
+Just wanted to let you know that someone has submitted a review to Plates of Rochester. You need to read and approve it before it will be displayed live.
+
+You can view this review at the following link:
+
+	http://{$_SERVER['HTTP_HOST']}/detail.php?show_review=$rid
+
+Review information:
+	Submitted by:	{$review['username']}
+	IP address:		{$_SERVER['REMOTE_ADDR']}
+	Date and time:	$now
+
+Administer reviews using the following link:
+	https://{$_SERVER['HTTP_HOST']}/admin.php
+
+- The PoR admin bot
+
+EOF;
+	
+		$mail_result = @smtp_mail($alerts_email, $alerts_email, "[PoR] New review submitted", $email_body);
+		
 		header('HTTP/1.1 302 Found');
 		header('Location: reviews.php?sort=date&submitted=true');
 		exit;
