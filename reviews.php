@@ -46,9 +46,11 @@
 			}
 			
 			$by_venue = isset($_GET['by_venue']) ? sprintf(" WHERE r.venue_id = %d ", intval($_GET['by_venue'])) : '';
+			$where_keyword = 'WHERE';
 			
 			if ( !empty($by_venue) )
 			{
+				$where_keyword = 'AND';
 				$q = db_query(sprintf("SELECT v_name FROM venues WHERE id = %d;", intval($_GET['by_venue'])));
 				list($v_name) = array_values(db_fetch($q));
 			}
@@ -71,7 +73,7 @@
 			<?php
 			if ( !empty($_GET['submitted']) )
 			{
-				echo '<div class="alert alert-success">Review submitted. Thanks!</div>';
+				echo '<div class="alert alert-success"><strong>Review submitted. Thanks!</strong><br />The mods will look over it and make sure it isn\'t spam. It should be live shortly.</div>';
 			}
 			?>
 			
@@ -85,7 +87,7 @@
 			</div>
 			
 			<?php
-			$q = db_query($sql = "SELECT v.v_name, r.id, r.username, r.overall_rating, r.freetext, r.submit_time FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) $by_venue ORDER BY $sort_clause;");
+			$q = db_query($sql = "SELECT v.v_name, r.id, r.username, r.overall_rating, r.freetext, r.submit_time FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) $by_venue $where_keyword  (r.flags & " . REVIEW_APPROVED . ") > 0 ORDER BY $sort_clause;");
 			$i = 0;
 			while ( $row = db_fetch($q) )
 			{

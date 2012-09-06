@@ -10,6 +10,17 @@ require(INC . 'db-config.php');
 unset($db_config); // don't need this out in the open
 
 /**
+ * Flags for reviews
+ */
+
+/**
+ * A review is approved if this flag is set
+ * @const int
+ */
+
+define('REVIEW_APPROVED', 1 << 0);
+
+/**
  * Failsafe implementation of get_magic_quotes_gpc()
  * @return bool
  */

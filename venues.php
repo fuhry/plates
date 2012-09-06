@@ -69,7 +69,7 @@
 			</thead>
 			<tbody>
 				<?php
-				$q = db_query("SELECT v.id, v_name, v_addr, v_phone, AVG(r.overall_rating) AS avg_rating, COUNT(r.id) AS review_count FROM venues AS v LEFT JOIN reviews AS r ON ( v.id = r.venue_id ) GROUP BY r.venue_id ORDER BY $sort_clause;");
+				$q = db_query("SELECT v.id, v_name, v_addr, v_phone, AVG(r.overall_rating) AS avg_rating, COUNT(r.id) AS review_count FROM venues AS v LEFT JOIN reviews AS r ON ( v.id = r.venue_id ) WHERE (r.flags & " . REVIEW_APPROVED . ") > 0 GROUP BY r.venue_id ORDER BY $sort_clause;");
 				while ( $row = db_fetch($q) )
 				{
 					echo '<tr>';

@@ -62,6 +62,16 @@ if ( isset($_GET['act']) && !empty($_POST) )
 				db_query(sprintf("DELETE FROM reviews WHERE id = %d;", intval($_POST['delete_review'])));
 				echo '<div class="alert alert-success">Review deleted.</div>';
 			}
+			else if ( isset($_POST['approve']) )
+			{
+				db_query(sprintf("UPDATE reviews SET flags = flags | %d WHERE id = %d;", REVIEW_APPROVED, intval($_POST['approve'])));
+				echo '<div class="alert alert-success">Review approved.</div>';
+			}
+			else if ( isset($_POST['unapprove']) )
+			{
+				db_query(sprintf("UPDATE reviews SET flags = flags & (~%d) WHERE id = %d;", REVIEW_APPROVED, intval($_POST['unapprove'])));
+				echo '<div class="alert alert-success">Review unapproved.</div>';
+			}
 			?>
 			
 			<form method="post">
@@ -80,13 +90,17 @@ if ( isset($_GET['act']) && !empty($_POST) )
 				while ( $row = db_fetch($q) )
 				{
 					echo '<tr>';
+					$approve_btn = $row['flags'] & REVIEW_APPROVED ?
+									sprintf("<button class=\"btn btn-primary btn-mini\" name=\"unapprove\" value=\"%d\" title=\"Review is live; click to hide\"><i class=\"icon icon-white icon-eye-close\"></i></button>", $row['id']) :
+									sprintf("<button class=\"btn btn-warning btn-mini\" name=\"approve\" value=\"%d\" title=\"Review is hidden; click to go live\"><i class=\"icon icon-white icon-eye-open\"></i></button>", $row['id']);
 					printf("<td>%s</td>", htmlspecialchars($row['username']));
 					printf("<td>%s</td>", htmlspecialchars($row['v_name']));
 					printf("<td>%s</td>", date('F j, Y g:i A', $row['submit_time']));
 					printf("<td style=\"text-align: center\">
+								%s
 								<a title=\"See this review\" href=\"detail.php?show_review=%d\" class=\"btn btn-success btn-mini\"><i class=\"icon-white icon-search\"></i></a>
 								<button title=\"Delete this review\" name=\"delete_review\" value=\"%d\" class=\"btn btn-danger btn-mini\"><i class=\"icon-white icon-trash\"></i></button>
-							</td>", $row['id'], $row['id']);
+							</td>", $approve_btn, $row['id'], $row['id']);
 					echo '</tr>';
 				}
 				?>
