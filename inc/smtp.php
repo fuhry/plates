@@ -35,7 +35,13 @@ function smtp_mail($from, $to, $subject, $body, $headers = '')
 			throw new Exception("Expected 220");
 		
 		// HELO
-		fputs($sock, "HELO " . gethostname() . "\r\n");
+		// get server's FQDN
+		$hostname = gethostname();
+		if ( strpos($hostname, '.') === false )
+		{
+			$hostname .= '.' . trim(`dnsdomainname`);
+		}
+		fputs($sock, "HELO $hostname\r\n");
 		if ( _smtp_get_response($sock) !== 250 )
 			throw new Exception("Expected 250");
 		
