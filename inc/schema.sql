@@ -26,8 +26,9 @@ CREATE TABLE reviews (
 	username varchar(63) NOT NULL DEFAULT 'User',
 	overall_rating float(5, 2) NOT NULL DEFAULT 1.0,
 	submit_time int(12) unsigned NOT NULL DEFAULT 0,
-	freetext longtext NOT NULL,
 	flags int unsigned NOT NULL DEFAULT 0,
+	edit_key char(32) NOT NULL DEFAULT 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	freetext longtext NOT NULL,
 	PRIMARY KEY ( id )
 );
 
