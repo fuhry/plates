@@ -21,7 +21,7 @@ function smtp_mail($from, $to, $subject, $body, $headers = '')
 	if ( !isset($record[0]['target']) )
 		// failed to get target server
 		return false;
-	
+		
 	// open socket
 	$sock = fsockopen($record[0]['target'], 25, $errno, $errstr, 5);
 	if ( !$sock )
@@ -51,17 +51,19 @@ function smtp_mail($from, $to, $subject, $body, $headers = '')
 			throw new Exception("Expected 250");
 		
 		// to
-		fputs($sock, "RCPT TO: <$from>\r\n");
+		fputs($sock, "RCPT TO: <$to>\r\n");
 		if ( _smtp_get_response($sock) !== 250 )
 			throw new Exception("Expected 250");
 		
 		// data
 		fputs($sock, "DATA\r\n");
-		if ( _smtp_get_response($sock) !== 250 )
-			throw new Exception("Expected 250");
+		if ( !in_array(_smtp_get_response($sock), array(354, 250)) )
+			throw new Exception("Expected 250 or 354");
 		
 		// send headers
 		$full_headers = "Subject: $subject\r\n";
+		$full_headers .= "From: <$from>\r\n";
+		$full_headers .= "To: <$to>\r\n";
 		if ( !empty($headers) )
 			$full_headers .= trim(str_replace("\n", "\r\n", str_replace("\r\n", "\n", $headers))) . "\r\n";
 		
@@ -98,9 +100,11 @@ function _smtp_get_response($sock)
 	while ( !feof($sock) && ($line = fgets($sock, 8192)) )
 	{
 		if ( preg_match('/^([0-9]+)(\s.+)?$/', $line, $match) )
+		{
 			return intval($match[1]);
+		}
 	}
 	return false;
 }
 
-// smtp_mail('plates@csh.rit.edu', 'plates@csh.rit.edu', 'Test e-mail', 'Testing', 'From: Plates <plates@csh.rit.edu>');	
+// smtp_mail('plates@csh.rit.edu', 'plates@csh.rit.edu', 'Test e-mail', 'Testing', 'From: Plates <plates@csh.rit.edu>');
