@@ -146,7 +146,7 @@ Administer reviews using the following link:
 
 EOF;
 	
-		//$mail_result = @smtp_mail($alerts_email, $alerts_email, "[PoR] New review submitted", $email_body);
+		$mail_result = @smtp_mail($alerts_email, $alerts_email, "[PoR] New review submitted", $email_body);
 		
 		header('HTTP/1.1 302 Found');
 		header("Location: reviews.php?sort=date&submitted=true&id=$rid&key={$prefill['review']['key']}");
