@@ -59,7 +59,7 @@
 					<td><?php echo stars($row['overall_rating']); ?></td>
 				</tr>
 				<?php
-				$q = db_query("SELECT d.*, a.* FROM review_data AS d LEFT JOIN attrs AS a ON ( a.id = d.schema_id ) WHERE d.review_id = {$row['id']};");
+				$q = db_query("SELECT d.*, a.* FROM review_data AS d LEFT JOIN attrs AS a ON ( a.id = d.schema_id ) WHERE d.review_id = {$row['id']} ORDER BY a_sort_order ASC;");
 				while ( $entry = db_fetch($q) )
 				{
 					if ( class_exists($clsname = "Control_{$entry['a_type']}") )

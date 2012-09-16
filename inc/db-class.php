@@ -48,6 +48,11 @@ function db_escape($str)
 	return mysql_real_escape_string($str);
 }
 
+function db_free_result($result)
+{
+	return mysql_free_result($result);
+}
+
 function db_insert($table, $columns, $rows)
 {
 	if ( !isset($rows[0]) || !is_array($rows[0]) )

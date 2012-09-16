@@ -73,7 +73,13 @@
 			<?php
 			if ( !empty($_GET['submitted']) )
 			{
-				echo '<div class="alert alert-success"><strong>Review submitted. Thanks!</strong><br />The mods will look over it and make sure it isn\'t spam. It should be live shortly.</div>';
+				$id = intval($_GET['id']);
+				$key = htmlspecialchars($_GET['key']);
+				echo '<div class="alert alert-success">
+						<strong>Review submitted. Thanks!</strong><br />The mods will look over it and make sure it isn\'t spam. It should be live shortly.<br />
+						Should you ever have the desire to edit your review, you can do so with <a href="submit.php?edit_review=' . $id . "&key=$key\">this link</a>. Please
+						bookmark it if you plan to edit your review in the future.
+					</div>";
 			}
 			?>
 			

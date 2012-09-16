@@ -3,8 +3,10 @@ require('inc/loader.php');
 
 $recaptcha_error = null;
 $submit_error = null;
+$prefill = array();
 if ( !empty($_POST) )
 {
+	$prefill = $_POST;
 	call_user_func(function() {
 		global $submit_error, $recaptcha_error;
 		
@@ -21,13 +23,26 @@ if ( !empty($_POST) )
         	$recaptcha_error = $resp->error;
         	return $submit_error = "Check the CAPTCHA.";
         }
-		
-		// echo '<pre>' . htmlspecialchars(print_r($_POST, true)) . '</pre>';
-		
+        
 		$review = $_POST['review'];
 		$review['submit_time'] = time();
 		$overall_count = 0;
 		$overall_n = 0;
+		
+		$update = false;
+		if ( !empty($review['id']) && !empty($review['key']) )
+		{
+			$id = intval($review['id']);
+			$key = $review['key'];
+			if ( preg_match('/^[a-z0-9]{32}$/', $key) )
+			{
+				$q = db_query("SELECT 1 FROM reviews WHERE id = $id AND edit_key = '$key';");
+				if ( db_numrows($q) )
+				{
+					$update = $id;
+				}
+			}
+		}
 		
 		// fetch all attributes
 		$attrs = array();
@@ -58,10 +73,40 @@ if ( !empty($_POST) )
 			$review['venue_id'] = db_insert('venues', array('v_name', 'v_addr', 'v_phone'), $_POST['venue']);
 		}
 		
-		// Now create the review
+		// determine overall rating
 		$review['overall_rating'] = round($overall_n / $overall_count, 1);
 		
-		$rid = db_insert('reviews', array('username', 'freetext', 'overall_rating', 'submit_time', 'venue_id'), $review);
+		if ( empty($update) )
+		{
+			// we are creating a new review
+			
+			// generate an edit key
+			$chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+			$review['edit_key'] = '';
+			while ( strlen($review['edit_key']) < 32 )
+				$review['edit_key'] .= $chars{mt_rand(0, strlen($chars)-1)};
+			
+			$rid = db_insert('reviews', array('username', 'freetext', 'overall_rating', 'submit_time', 'venue_id', 'edit_key'), $review);
+			
+			$prefill['review']['key'] = $review['edit_key'];
+		}
+		else
+		{
+			// we are updating an existing review
+			$rid = $update;
+			
+			$update = "UPDATE reviews SET ";
+			foreach ( array('username', 'freetext', 'overall_rating', 'venue_id') as $column )
+			{
+				$update .= sprintf("%s = '%s', ", $column, mysql_real_escape_string($review[$column]));
+			}
+			$update = substr($update, 0, -2);
+			$update .= " WHERE id = $rid;";
+			
+			db_query($update);
+			// delete old attrs
+			db_query("DELETE FROM review_data WHERE review_id = $rid;");
+		}
 		
 		// ...and insert user-defined attributes
 		$attr_rows = array();
@@ -101,12 +146,49 @@ Administer reviews using the following link:
 
 EOF;
 	
-		$mail_result = @smtp_mail($alerts_email, $alerts_email, "[PoR] New review submitted", $email_body);
+		//$mail_result = @smtp_mail($alerts_email, $alerts_email, "[PoR] New review submitted", $email_body);
 		
 		header('HTTP/1.1 302 Found');
-		header('Location: reviews.php?sort=date&submitted=true');
+		header("Location: reviews.php?sort=date&submitted=true&id=$rid&key={$prefill['review']['key']}");
 		exit;
 	});
+}
+else
+{
+	if ( isset($_GET['edit_review']) && isset($_GET['key']) )
+	{
+		$rid = intval($_GET['edit_review']);
+		$key = $_GET['key'];
+		if ( preg_match('/^[a-z0-9]{32}$/', $key) )
+		{
+			$q = db_query("SELECT v.v_name, r.id, r.venue_id, r.username, r.overall_rating, r.freetext, r.submit_time FROM reviews AS r LEFT JOIN venues AS v ON ( v.id = r.venue_id ) WHERE r.id = $rid AND r.edit_key = '$key';");
+			if ( db_numrows($q) )
+			{
+				$row = db_fetch($q);
+				$prefill = array(
+						'review' => array(
+								'username' => $row['username']
+								, 'venue_id' => $row['venue_id']
+								, 'freetext' => $row['freetext']
+								, 'id' => $row['id']
+								, 'key' => $key
+							)
+						, 'venue' => array(
+								'v_name' => ''
+								, 'v_addr' => ''
+								, 'v_phone' => ''
+							)
+						, 'attrs' => array()
+					);
+				db_free_result($q);
+				$q = db_query("SELECT schema_id, d_value FROM review_data WHERE review_id = $rid;");
+				while ( $row = db_fetch($q) )
+				{
+					$prefill['attrs'][ intval($row['schema_id']) ] = $row['d_value'];
+				}
+			}
+		}
+	}
 }
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
@@ -152,21 +234,25 @@ EOF;
 					<div class="control-group">
 						<label class="control-label">Your name:</label>
 						<div class="controls">
-							<input type="text" name="review[username]" />
+							<input type="text" name="review[username]"
+								<?php if ( isset($prefill['review']['username']) ) printf("value=\"%s\"", htmlspecialchars($prefill['review']['username'])); ?>
+								/>
 						</div>
 					</div>
 					
 					<!-- VENUE -->
-					<div id="venue-exists" style="display: block;">
+					<div id="venue-exists" style="<?php echo ( !empty($prefill) && empty($prefill['review']['venue_id']) ) ? "display: none;" : "display: block;"; ?>">
 						<div class="control-group">
 							<label class="control-label">Where did you eat?</label>
 							<div class="controls">
 								<select name="review[venue_id]" id="venue_id">
 									<?php
 									$q = db_query("SELECT id, v_name, v_addr FROM venues;");
+									$select = isset($prefill['review']['venue_id']) ? intval($prefill['review']['venue_id']) : 0;
 									while ( $row = db_fetch($q) )
 									{
-										printf("<option value=\"%d\">%s, %s</option>", $row['id'], htmlspecialchars($row['v_name']), htmlspecialchars($row['v_addr']));
+										$sel = intval($row['id']) === $select ? ' selected="selected"' : '';
+										printf("<option value=\"%d\"%s>%s, %s</option>", $row['id'], $sel, htmlspecialchars($row['v_name']), htmlspecialchars($row['v_addr']));
 									}
 									?>
 								</select><br />
@@ -178,14 +264,16 @@ EOF;
 					</div>
 					
 					<!-- NEW VENUE -->
-					<div id="venue-doesnt-exist" style="display: none;">
+					<div id="venue-doesnt-exist" style="<?php echo ( !empty($prefill) && empty($prefill['review']['venue_id']) ) ? "display: block;" : "display: none;"; ?>">
 						<h3>Add a new restaurant</h3>
 						
 						<!-- VENUE NAME -->
 						<div class="control-group">
 							<label class="control-label">Name:</label>
 							<div class="controls">
-								<input type="text" name="venue[v_name]" />
+								<input type="text" name="venue[v_name]"
+									<?php if ( isset($prefill['venue']['v_name']) ) printf("value=\"%s\"", htmlspecialchars($prefill['venue']['v_name'])); ?>
+									/>
 							</div>
 						</div>
 						
@@ -193,7 +281,9 @@ EOF;
 						<div class="control-group">
 							<label class="control-label">Address:</label>
 							<div class="controls">
-								<input type="text" name="venue[v_addr]" /><br />
+								<input type="text" name="venue[v_addr]"
+									<?php if ( isset($prefill['venue']['v_name']) ) printf("value=\"%s\"", htmlspecialchars($prefill['venue']['v_addr'])); ?>
+									/><br />
 								<span class="help-inline">No need to include "Rochester, NY."</span>
 							</div>
 						</div>
@@ -202,7 +292,9 @@ EOF;
 						<div class="control-group">
 							<label class="control-label">Phone number:</label>
 							<div class="controls">
-								<input type="text" name="venue[v_phone]" />
+								<input type="text" name="venue[v_phone]"
+									<?php if ( isset($prefill['venue']['v_name']) ) printf("value=\"%s\"", htmlspecialchars($prefill['venue']['v_phone'])); ?>
+									/>
 							</div>
 						</div>
 						
@@ -217,7 +309,7 @@ EOF;
 					<div class="control-group">
 						<label class="control-label">Comments:</label>
 						<div class="controls">
-							<textarea rows="10" cols="80" class="span6" name="review[freetext]"></textarea>
+							<textarea rows="10" cols="80" class="span6" name="review[freetext]"><?php if ( isset($prefill['review']['freetext']) ) echo htmlspecialchars($prefill['review']['freetext']); ?></textarea>
 						</div>
 					</div>
 					
@@ -236,7 +328,7 @@ EOF;
 						$cobj->hint = $row['a_hint'];
 						$cobj->flags = $row['a_flags'];
 						$cobj->options = !empty($row['a_options']) ? json_decode($row['a_options'], true) : array();
-						$cobj->edit('attrs[' . $row['id'] . ']');
+						$cobj->edit('attrs[' . $row['id'] . ']', !empty($prefill['attrs'][$row['id']]) ? $prefill['attrs'][$row['id']] : null);
 					}
 					?>
 					
@@ -253,6 +345,14 @@ EOF;
 						<input type="submit" class="btn btn-primary" value="Submit review" />
 					</div>
 				</fieldset>
+				
+				<?php
+				if ( !empty($prefill['review']['id']) && !empty($prefill['review']['key']) )
+				{
+					printf("<input type=\"hidden\" name=\"review[id]\" value=\"%d\" />", $prefill['review']['id']);
+					printf("<input type=\"hidden\" name=\"review[key]\" value=\"%s\" />", htmlspecialchars($prefill['review']['key']));
+				}
+				?>
 			</form>
 		</div>
 		<div class="footer container">
