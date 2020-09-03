@@ -43,7 +43,7 @@ CREATE TABLE review_data (
 INSERT INTO attrs(a_name, a_hint, a_type, a_size, a_options, a_flags, a_sort_order) VALUES
 	('Sketchiness','Did you feel that you were going to get shot, or were you in the safe part of town?','Rating',0,'{"scale":["We''re going to get mugged", "It''s all good"],"out_of":5}',3,1),
 	('Time of trip','Certain times of day affect the plate experience','Radio',0,'{"options":[""Normal" dinnertime (4PM - 8PM)",""Late-Normal" dinnertime (8PM - 12AM)", "CSH dinnertime (12AM - 2AM)", "Marks O''Clock (2AM - 5AM)", "All-nighter (5AM - 8AM)", "Daytime (8AM - 4PM)"]}',1,0),
-	('Size of group:','Some locations have difficulty with large groups; others handle them fine.','Radio',1,'{"options":["Forever alone (1)","Man-date (2)","Epic bros (3-4)","Full car (5-6)","Moderate group (7-15)","Bigger group (16-30)","Massive group (31-60)","CSH (61-100)"]}',0,2),
+	('Size of group:','Some locations have difficulty with large groups; others handle them fine.','Radio',1,'{"options":["Forever alone (1)","Man-date (2)","Epic bros (3-4)","Full car (5-6)","Moderate group (7-15)","Bigger group (16-30)","Massive group (31-60)","CSH (61-130)"]}',0,2),
 	('Meat selection:','What kind of meat did you have on your plate?','Radio',1,'{"options":["Cheeseburger","Hamburger","Red hot","White hot","Veggie burger","Scrambled eggs","Other"]}',0,8),
 	('Fries:','','Radio',1,'{"options":["French fries (straight)","French fries (crinkle)","Homefries","None"]}',0,11),
 	('Second base ingredient:','','Radio',1,'{"options":["Mac salad","Baked beans","Other","None"]}',0,12),
